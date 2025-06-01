@@ -1,0 +1,32 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+  }
+  
+  /* #body {
+    background-color: white; 
+  } */
+
+  /* 渐变过渡效果 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+#waifu{
+    z-index: 10000 !important;
+    left: 5% !important;
+    Pointer-events: none !important;
+    position: fixed !important;
+    color: black !important;
+    opacity: 0.5 !important;
+}
+
+

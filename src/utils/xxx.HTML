@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+        //引入axios
+
+
+
+        // 创建axios实例
+        const retryCount = 2 // 最多重试2次
+        const axiosEp = axios.create({
+            //base接口，表示请求URL的公共部分
+            baseURL: 'http://127.0.0.1:8085/user/',
+            // 超时
+            timeout: 30000,
+
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+            }
+        })
+
+        axiosEp.interceptors.request.use(config => {
+            //配置请求头，以下是一个示例，设置语言为简体中文
+            config.headers.lang = 'zh-CN'
+
+            //对请求数据进行处理
+
+            return config
+        }, error => {
+            console.log('请求拦截器错误', error)
+            //请求拦截错误处理
+        })
+
+        axiosEp.interceptors.response.use(async (res) => {
+            //根据自己的需求进行代码的编写，以下是一些示例
+
+            // 获取错误信息
+            const message = res.data.message
+            const code = res.data.code
+            //通过响应码的不同进行不同的处理
+            if (code === 404) {
+                //响应码为404时的处理
+                console.log('404未发现页面,返回404页面')
+
+            } else if (code === 402) {
+                //响应码为402时的处理
+
+            } else {
+                //响应码为其他类型时的处理
+            }
+
+            return res.data
+        }, async error => {
+            if (error.response) {
+                // 服务器响应了但状态码异常
+                const status = error.response.status
+                if (status === 401) {
+                    console.log('token失效')
+                    // window.location.href = '/login'
+                }
+            } else {
+                // 更精确的错误类型判断
+                if (error.message.includes('Network Error')) {
+                    console.error('网络连接异常，请检查:')
+                    console.log('1. 是否开启VPN/proxy')
+                    console.log('2. 后端服务地址是否正确')
+                    console.log('3. 是否存在跨域问题')
+                } else if (error.code === 'ECONNABORTED') {
+                    console.error(`请求超时（${axiosEp.defaults.timeout}ms）`)
+                }
+            }
+            return Promise.reject(error)
+        }
+        )
+
+        async function axiosXH(url, method, data) {
+            let retry = 0
+            //错误重传
+            while (retry <= retryCount) {
+                try {
+                    const res = await axiosEp({ url, method, data })
+                    return res
+                } catch (error) {
+                    if (retry === retryCount) throw error
+                    if (!error.response) {
+                        console.log(`第 ${retry + 1} 次重试...`)
+                        await new Promise(resolve => setTimeout(resolve, 1500))
+                        retry++
+                    } else {
+                        throw error
+                    }
+                }
+            }
+        }
+
+        function Xaxios(url, method, data) {
+            axiosXH(url, method, data).then(res => {
+                return res
+            })
+                .catch(error => {
+                    if (error.response) {
+                        console.error('业务错误:', error.response.data)
+                    } else if (error.request) {
+                        const request = error.request
+                        console.error('连接异常:', {
+                            readyState: request.readyState,
+                            status: request.status,
+                            responseURL: request.responseURL // 显示真实请求地址
+                        })
+                    } else {
+                        console.error('本地错误:', error.message)
+                    }
+
+                    // 返回统一错误格式
+                    return {
+                        success: false,
+                        errorType: 'network',
+                        message: error.message || '未知错误'
+                    }
+                })
+        }
+
+
+        // export default { Xaxios }
+
+        Xaxios("userReq", "POST", {
+            "name": "Alice",
+            "password": "123456",
+            "email": "3246550"
+        })
+
+    </script>
+</body>
+
+</html>
