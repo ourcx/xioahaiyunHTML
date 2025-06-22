@@ -1,7 +1,14 @@
 <template>
   <div class="verify-container">
     <!-- 在表单附近添加 Alert 提示 -->
-    <el-alert v-if="showAlert" :title="alertTitle" :type="alertType" :closable="false" show-icon class="mb-4">
+    <el-alert
+      v-if="showAlert"
+      :title="alertTitle"
+      :type="alertType"
+      :closable="false"
+      show-icon
+      class="mb-4"
+    >
       {{ alertMessage }}
     </el-alert>
     <el-form ref="formRef" :model="form" :rules="rules" @submit.prevent="handleSubmit">
@@ -23,8 +30,14 @@
 
       <!-- 提取码输入 -->
       <el-form-item prop="accessCode">
-        <el-input v-model="form.accessCode" placeholder="请输入4位提取码（不区分大小写）" clearable :maxlength="20" :spellcheck="false"
-          class="custom-search">
+        <el-input
+          v-model="form.accessCode"
+          placeholder="请输入4位提取码（不区分大小写）"
+          clearable
+          :maxlength="20"
+          :spellcheck="false"
+          class="custom-search"
+        >
           <template #prefix>
             <el-icon>
               <Key />
@@ -36,7 +49,13 @@
       <!-- 验证码输入 -->
       <el-form-item prop="captcha" v-if="false">
         <div class="captcha-container">
-          <el-input v-model="form.captcha" placeholder="请输入验证码" :maxlength="4" clearable class="custom-search">
+          <el-input
+            v-model="form.captcha"
+            placeholder="请输入验证码"
+            :maxlength="4"
+            clearable
+            class="custom-search"
+          >
             <template #prefix>
               <el-icon>
                 <Picture />
@@ -46,15 +65,19 @@
 
           <div class="captcha-image">
             <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha" />
-            <el-button link type="primary" @click="refreshCaptcha">
-              换一张
-            </el-button>
+            <el-button link type="primary" @click="refreshCaptcha"> 换一张 </el-button>
           </div>
         </div>
       </el-form-item>
 
       <!-- 提交按钮 -->
-      <el-button native-type="submit" type="primary" :loading="loading" class="submit-btn" @click="handleSubmit">
+      <el-button
+        native-type="submit"
+        type="primary"
+        :loading="loading"
+        class="submit-btn"
+        @click="handleSubmit"
+      >
         提取文件
       </el-button>
     </el-form>
@@ -62,139 +85,158 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { Key, Picture, Plus } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router';
-import { useRoute } from 'vue-router';
-import apiClient from '@/utils/api'
+import { ref, reactive, onMounted } from "vue";
+import { Key, Picture, Plus } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
+import apiClient from "@/utils/api";
+import { useShareStore } from "@/stores/share";
 
-const route = useRoute()
-const router = useRouter()
+const shareStore = useShareStore();
+const route = useRoute();
+const router = useRouter();
 
+//准备完成分享功能，根据后端share桶的内容和uuid进行匹配，匹配成功后，输入密码可以查看你分享的文件
 
 // 监听路由变化//
 //这里还要完成一个操作，我传入一个uuid，然后会发送到后端，后端检查这个uuid是否存在，如果不存在就跳转到一个错误页面
 //还要传入一个pwd，作为密码，如果密码正确就返回一个文件列表，如果密码错误就返回一个错误页面
-const datas = ref({})
+const datas = ref({});
 // 直接访问 query 参数
-console.log(route.query.one_id) // 所有参数对象
-
+console.log(route.query.one_id); // 所有参数对象
 
 // 如果没有 one_id，跳转到错误页面
 const shareFile = async () => {
   try {
-    const response = await apiClient.post('/share/getUrl', {
-      one_id: route.query.one_id
-    })
-    console.log(response.data.data)
-    datas.value = response.data.data
+    const response = await apiClient.post("/share/getUrl", {
+      one_id: route.query.one_id,
+      userId: route.query.userId || null, // 可选参数
+    });
+    console.log(response);
+    datas.value = response.data.data;
   } catch (error) {
-    console.error(':', error)
+    router.push("/404");
+    console.error(":", error);
   }
-}
-shareFile()
-
-
-
-
+};
+shareFile();
 
 // 表单数据
 const form = reactive({
-  accessCode: '',
-  captcha: ''
-})
+  accessCode: "",
+  captcha: "",
+});
+
+if (route.query.pwd) {
+  form.accessCode = route.query.pwd;
+}
 
 // 表单验证规则
 const rules = reactive({
-  accessCode: [
-    { required: true, message: '请输入提取码', trigger: 'blur' }
-  ],
+  accessCode: [{ required: true, message: "请输入提取码", trigger: "blur" }],
   captcha: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { min: 4, max: 4, message: '验证码必须为4位', trigger: 'blur' }
-  ]
-})
+    { required: true, message: "请输入验证码", trigger: "blur" },
+    { min: 4, max: 4, message: "验证码必须为4位", trigger: "blur" },
+  ],
+});
 
 // 验证码相关
-const captchaUrl = ref('//dummyimage.com/100x40')
-const loading = ref(false)
-const formRef = ref(null)
+const captchaUrl = ref("//dummyimage.com/100x40");
+const loading = ref(false);
+const formRef = ref(null);
 
 // 刷新验证码
 const refreshCaptcha = () => {
-  captchaUrl.value = `//dummyimage.com/100x40?t=${Date.now()}`
-}
+  captchaUrl.value = `//dummyimage.com/100x40?t=${Date.now()}`;
+};
 
 // Alert 控制状态
-const showAlert = ref(false)
-const alertType = ref('info')
-const alertTitle = ref('')
-const alertMessage = ref('')
-
+const showAlert = ref(false);
+const alertType = ref("info");
+const alertTitle = ref("");
+const alertMessage = ref("");
+const index = ref(0);
+let i =null
+//计步器
 // 提交逻辑优化版
 const handleSubmit = async () => {
-  if (loading.value) return // 防止重复提交
-  if (form.accessCode.length != 4) return
+  if (index.value >= 5) {
+    showAlert.value = true;
+    alertType.value = "error";
+    alertTitle.value = "输入次数过多";
+    alertMessage.value = "正在等待重启...";
+    if(i)return;
+    i=setTimeout(() => {
+      index.value = 0;
+    },10000)
+    return;
+  };
+  if (loading.value) return; // 防止重复提交
+  if (form.accessCode.length != 4) return;
+  index.value = index.value + 1;
+  console.log(index.value);
   try {
-    loading.value = true
-    await formRef.value.validate()
+    loading.value = true;
+    await formRef.value.validate();
 
     // 使用 await 替代 .then() 更清晰的链式调用
-    const response = await apiClient.post('/share/checked', {
+    const response = await apiClient.post("/user/checked", {
       Password: form.accessCode,
-      one_id: route.query.one_id
-    })
+      one_id: route.query.one_id,
+    });
 
     if (response.status === 200) {
       // 显示成功提示
-      showAlert.value = true
-      alertType.value = 'success'
-      alertTitle.value = '提取成功'
-      alertMessage.value = '正在跳转到文件列表...'
+      showAlert.value = true;
+      alertType.value = "success";
+      alertTitle.value = "提取成功";
+      alertMessage.value = "正在跳转到文件列表...";
 
       // 2秒后跳转（让用户看到提示）
       setTimeout(() => {
+        shareStore.addPwd(form.accessCode);
+        shareStore.addShare(route.query.one_id);
         router.push({
-          path: '/s/xxx',
-          query: { one_id: route.query.one_id }
-        })
-      }, 2000)
+          path: "/s/xxx",
+          query: { one_id: route.query.one_id , userId:route.query.userId },
+        });
+      }, 2000);
     }
   } catch (error) {
     // 统一错误处理
-    showAlert.value = true
-    alertType.value = 'error'
+    showAlert.value = true;
+    alertType.value = "error";
 
     if (error.response) {
       // API 错误
-      alertTitle.value = `请求错误 (${error.response.status})`
-      alertMessage.value = error.response.data.message || '检错你的验证码'
-    } else if (error.name === 'ValidationError') {
+      alertTitle.value = `请求错误 (${error.response.status})`;
+      alertMessage.value = error.response.data.message || "检错你的验证码";
+    } else if (error.name === "ValidationError") {
       // 表单验证错误（已由 Element 表单显示，此处可省略）
-      alertTitle.value = '表单不完整'
-      alertMessage.value = '请检查红色标记的必填项'
+      alertTitle.value = "表单不完整";
+      alertMessage.value = "请检查红色标记的必填项";
     } else {
       // 其他错误
-      alertTitle.value = '系统错误'
-      alertMessage.value = error.message || '未知错误'
+      alertTitle.value = "系统错误,验证码错误";
+      alertMessage.value = error.message || "未知错误";
     }
   } finally {
-    loading.value = false
+    loading.value = false;
 
     // 3秒后自动关闭提示（可选）
     if (showAlert.value) {
       setTimeout(() => {
-        showAlert.value = false
-      }, 3000)
+        showAlert.value = false;
+      }, 3000);
     }
   }
-}
+};
 
 // 添加好友
 const handleAddFriend = () => {
   // 移除了消息提示
-  console.log('发送好友请求')
-}
+  console.log("发送好友请求");
+};
 </script>
 
 <style scoped>
@@ -264,7 +306,6 @@ const handleAddFriend = () => {
 .friend-btn {
   padding: 8px 12px;
 }
-
 
 /* 深度穿透写法 */
 :deep(.custom-search .el-input__wrapper) {

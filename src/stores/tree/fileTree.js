@@ -15,6 +15,7 @@ export const useFileTreeStore = defineStore('fileTree', {
     lazyIndex: 20,
     allList: [],
     checked: [],
+    targetChildren:{}
   }),
   actions: {
     async id(){
@@ -228,15 +229,13 @@ export const useFileTreeStore = defineStore('fileTree', {
 
       const targetChildren = deepFind(tree, this.routeArr);
       console.log(targetChildren)
+      this.targetChildren=targetChildren
 
       let basePath = this.routeArr.slice(2).join('/') + "/";
 
       console.log(basePath)
 
-      // 使用Promise.all处理并行请求
       await Promise.all(Object.entries(targetChildren).map(async ([key, child]) => {
-        // try {
-        // 构造路径时使用模板字符串
         const path = `${basePath != "/" ? basePath : ""}${child.node}${child.type ? '/' : ''}`;
         // 发起请求
         console.log(path)
@@ -254,12 +253,6 @@ export const useFileTreeStore = defineStore('fileTree', {
           date: (resData['Last-Modified'] || '').slice(0, 16).replace('T', ' '),
           contentType: resData['Content-Type']
         });
-        //这里使用了异步的操作，导致结果和后端传过来的顺序不一致
-        // } catch (error) {
-        //   console.error(`处理节点 ${child.node} 失败:`, error);
-        //   // 可添加错误处理逻辑
-        //   return
-        // }
       },
 
       ));
@@ -278,7 +271,6 @@ export const useFileTreeStore = defineStore('fileTree', {
         this.filepath = [];
         this.result = [];
         this.routeArr.length == 2 ? this.init() : this.init(this.routeArr[this.routeArr.length - 1]);
-        console.log(this.routeArr);
       }
     },
 

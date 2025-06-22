@@ -101,7 +101,7 @@ export default defineConfig({
         target: 'http://localhost:8085',
         changeOrigin: true,
       },
-      '/share/checked': {
+      '/user/checked': {
         target: 'http://localhost:8085',
         changeOrigin: true,
       },
@@ -198,6 +198,22 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/data/relationD3': {
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      '/files/Url':{
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      '/share/download':{
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      '/share/create':{
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      '/share/deleteShare':{
         target: 'http://localhost:8085',
         changeOrigin: true,
       }

@@ -152,7 +152,8 @@ onMounted(async () => {
         <el-header>
           <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal">
             <el-menu-item index="1">时光轴</el-menu-item>
-            <el-menu-item index="2">最近上传</el-menu-item>
+            <el-menu-item index="2
+            ">最近上传</el-menu-item>
           </el-menu>
         </el-header>
         <transition-group name="fade" tag="div">

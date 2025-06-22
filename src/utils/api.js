@@ -17,4 +17,20 @@ apiClient.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
+//重发请求
+apiClient.interceptors.response.use(undefined, function axiosRetryInterceptor(err) {
+  var config = err.config;
+  if (config.url.indexOf('api/') > -1 && config.method === 'get' && config.retry !== false) {
+    config.__retryCount = config.__retryCount || 0;
+    if (config.__retryCount < 3) {
+      config.__retryCount += 1;
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          resolve(apiClient(config));
+          console.log('重发请求');
+        })
+      })
+    }
+  }
+})
 export default apiClient;

@@ -3,8 +3,10 @@ import Move from '@/components/FIleMove/Move.vue';
 import { ref } from 'vue';
 import { useFileTreeStore } from '@/stores/tree/fileTree';
 import { useRoute } from 'vue-router';
+import Dialog from '@/components/upload/dialog.vue';
+import { useUpLoadStore } from "@/stores/upload";
 
-
+const upLoadStore = useUpLoadStore();
 const fileTreeStore = useFileTreeStore();
 const route = useRoute()
 const input = ref('');
@@ -18,9 +20,10 @@ const input = ref('');
 
 
 <template>
-
+  <Dialog></Dialog>
   <div class="home-hearder">
-    <el-button type="primary" round class="send">上传</el-button>
+    <el-button type="primary" round class="send" @click="upLoadStore.ChangeUpload()">上传</el-button>
+    <!-- 这里要实现一个鼠标拖拽上传 -->
     <el-button-group class="ml-4">
       <el-button type="info" v-if="route.query.type == 'file'" @click="fileTreeStore.addFolder()"><el-icon>
           <FolderAdd />

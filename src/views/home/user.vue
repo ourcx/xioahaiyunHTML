@@ -1,11 +1,9 @@
 <script setup>
 import * as d3 from 'd3'
 import { onMounted, ref, onBeforeMount, toRaw } from 'vue'
-import axios from 'axios';
 import 'animate.css';
 import { useRouter } from 'vue-router';
 import { useMasterPinia } from "@/stores/masterPinia"
-import apiClient from '@/utils/api';
 import { useD3Store } from '@/stores/D3/D3data'
 const d3Store = useD3Store()
 const MasterPinia = useMasterPinia();
@@ -15,7 +13,7 @@ const router = useRouter();
 
 const userBody = function () {
   const id = 123;
-  const url = router.resolve({ path: `/user/main?${id}` }).href;
+  const url = router.resolve({ path: `/server/main?${id}` }).href;
   window.open(url, '_blank'); // 在新标签页打开动态路由页面
 }
 // const route = useRoute();
@@ -143,12 +141,12 @@ onMounted(async () => {
           .attr('transform', 'scale(1)')
       })
 
-    const resize = () => {
-      const newWidth = container.offsetWidth
-      const newHeight = container.offsetHeight
-      svg.attr('viewBox', `0 0 ${newWidth} ${newHeight}`)
-    }
-    window.addEventListener('resize', resize)
+    // const resize = () => {
+    //   const newWidth = container.offsetWidth
+    //   const newHeight = container.offsetHeight
+    //   svg.attr('viewBox', `0 0 ${newWidth} ${newHeight}`)
+    // }
+    // window.addEventListener('resize', resize)
 
 
   })

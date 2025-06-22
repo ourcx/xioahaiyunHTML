@@ -1,7 +1,6 @@
 <script setup>
 import { RouterView } from 'vue-router';
 import { onMounted, onUnmounted,onBeforeUpdate } from 'vue';
-import { useChatStore } from '@/stores/chat';
 import { useMasterPinia } from "@/stores/masterPinia"
 import { useManagementStore } from "@/stores/management"
 import { useFileTreeStore } from './stores/tree/fileTree';
@@ -10,23 +9,21 @@ const fileTreeStore = useFileTreeStore();
 const ManagementStore = useManagementStore();
 const MasterPinia = useMasterPinia();
 
-const chatStore = useChatStore()
-
 // 初始化 WebSocket 连接
 onMounted(() => {
   fileTreeStore.id()
-  chatStore.initWebSocket()
+
   MasterPinia.setData()
     MasterPinia.setData()
   ManagementStore.updateListSide()
 })
 onBeforeUpdate(() => {
   MasterPinia.setData()
-  ManagementStore.updateListSide()
+ManagementStore.updateListSide()
 })
 // 组件卸载时关闭连接
 onUnmounted(() => {
-  chatStore.closeConnection()
+
 })
 
 </script>

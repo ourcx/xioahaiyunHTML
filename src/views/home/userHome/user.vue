@@ -109,13 +109,13 @@ const updateProfile = async () => {
 
 const Path = (item) => {
   const routeMap = {
-    '我的账户': '/user/main',
-    '绑定手机': '/user/phone',
-    '登录密码': '/user/password',
-    '绑定邮箱': '/user/email',
-    '忘记密码': '/user/forget',
-    '登录情况': '/user/location',
-    '登录记录': '/user/log',
+    '我的账户': '/server/main',
+    '绑定手机': '/server/phone',
+    '登录密码': '/server/password',
+    '绑定邮箱': '/server/email',
+    '忘记密码': '/server/forget',
+    '登录情况': '/server/location',
+    '登录记录': '/server/log',
     '账号注销': '/404'
   }
 
@@ -147,7 +147,9 @@ const Path = (item) => {
           <p>在线客服</p>
         </span>
         <span>
-          <p>网站首页</p>
+          <p @click="router.push({
+            path: '/firstFile'
+          })">网站首页</p>
         </span>
         <span> <el-avatar :size="40" :src="MasterPinia.avatar"></el-avatar></span>
       </div>

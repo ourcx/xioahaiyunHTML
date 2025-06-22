@@ -1,4 +1,4 @@
-import Hearder from '@/views/home/hearder.vue';
+
 <template>
   <el-container>
     <el-header class="header" height="60px">
@@ -72,7 +72,7 @@ import Hearder from '@/views/home/hearder.vue';
         <div class="aside-content">
           <h3>导航菜单</h3>
           <el-menu class="file-tree-menu">
-            <el-menu-item :index="i" v-for="(item, i) in FileTreaeStore.result" :key="item.name" @click="menu(item)">{{
+            <el-menu-item :index="String(i)" v-for="(item, i) in FileTreaeStore.result" :key="item.name" @click="menu(item)">{{
               item.name }}</el-menu-item>
           </el-menu>
         </div>

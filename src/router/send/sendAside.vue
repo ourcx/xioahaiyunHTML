@@ -1,84 +1,75 @@
 <script setup>
-import { ref, onMounted,reactive } from 'vue';
-import { RouterView, useRouter } from 'vue-router';
-import apiClient from '@/utils/api';
+import { ref, onMounted, reactive, watch } from "vue";
+import { RouterView, useRouter } from "vue-router";
+import apiClient from "@/utils/api";
+import { useMasterPinia } from "@/stores/masterPinia";
 
-import { ElMessage } from 'element-plus'
-import item from '@/components/fileTree/item.vue';
-import List from '../more/list.vue';
+import { ElMessage } from "element-plus";
+import item from "@/components/fileTree/item.vue";
+import List from "../more/list.vue";
 //加载
 const loading = ref(true);
-onMounted(() => loading.value = false)
+onMounted(() => (loading.value = false));
 const dialogTableVisible = ref(false);
-
-
+const useMaster = useMasterPinia();
+const id = localStorage.getItem("id");
 const columns = [
   {
-    title: '分享时间',
-    key: 'size',
+    title: "分享时间",
+    key: "size",
   },
   {
-    title: '密码',
-    key: 'date',
+    title: "密码",
+    key: "date",
   },
   {
-    title: '浏览次数',
-    key: 'date',
+    title: "浏览次数",
+    key: "date",
   },
 ];
 
-
-
 const data = ref([
   {
-    name: '2023-05-05',
-    size: '2023-05-05',
-    date: '2023-05-05',
-    num: 1
+    name: "2023-05-05",
+    size: "2023-05-05",
+    date: "2023-05-05",
+    num: 1,
   },
-])
+]);
 
-
-
-
-
-const list = ['分享记录', '收集文件']
+const list = ["分享记录", "收集文件"];
 const activeIndex = ref(null); // 记录当前激活的段落
 const titleIdex = ref(true);
 const router = useRouter();
-
-
 
 const setActive = (index) => {
   // 切换激活的段落
   activeIndex.value = activeIndex.value === index ? null : index;
   if (index === 0) {
     router.push({
-      path: '/send',
+      path: "/send",
       query: {
-        other: 'send'
+        other: "send",
       },
-    })
+    });
   } else if (index === 1) {
     router.push({
-      path: '/collect',
+      path: "/collect",
       query: {
-        other: 'collect'
+        other: "collect",
       },
-    })
+    });
   }
-}
-
-
+};
 
 //拿到相关的数据
 const getData = async () => {
   try {
-    const response = await apiClient.get('/data/shareData');
+    const response = await apiClient.get("/data/shareData");
     data.value = response.data.data;
     // console.log('获取数据成功:', response.data.data);
   } catch (error) {
-    console.error('获取数据失败:', error);
+    console.error("获取数据失败:", error);
   }
 };
 
@@ -86,49 +77,59 @@ onMounted(() => {
   getData();
 });
 
-
-const Visible = (item)=>{
+const Visible = (item) => {
   visible.value = true;
-  shareLink.value = `https://example.com/s?one_id=${item.oneId}&pwd=${item.password}`;
+  shareLink.value = `http://localhost:5173/s?one_id=${item.oneId}&pwd=${item.password}&userId=${id}`;
   stats.createTime = item.createTime;
   stats.visitCount = item.fileVisit;
+  form.oneId = item.oneId;
   form.password = item.password;
   dialogTableVisible.value = true;
   stats.List = item.fileName;
   // 这里可以根据需要设置其他统计信息
-}
+};
 
-
-
-
-const visible = ref(true)
-const shareLink = ref('')
-
+const visible = ref(true);
+const shareLink = ref("");
 
 const form = reactive({
-  expire: '7d',
+  oneId: "",
+  expire: "7d",
   enabled: true,
-  password: ''
-})
+  password: "",
+});
 
 const stats = reactive({
-  createTime: '2023-09-20 14:30',
+  createTime: "2023-09-20 14:30",
   visitCount: 42,
-  List: []
-})
+  List: [],
+});
 
 const copyLink = () => {
-  navigator.clipboard.writeText(props.shareLink)
-  ElMessage.success('链接已复制到剪贴板')
-}
+  navigator.clipboard.writeText(props.shareLink);
+  ElMessage.success("链接已复制到剪贴板");
+};
 
 const handleConfirm = () => {
-  dialogVisible.value = false
-}
+  dialogVisible.value = false;
+};
 
+const handleSwitchChange = async () => {
+  const res = await apiClient.post("/share/deleteShare", {
+    one_id: form.oneId,
+    userId: id,
+  });
+  console.log("禁用分享:", res);
+  //关闭窗口
+  dialogTableVisible.value = false;
+  //回复按钮
+  form.enabled = true;
+  //清空表单
+  data.value = [];
+  //重新加载
+  getData();
+};
 </script>
-
-
 
 <template>
   <el-aside width="180px">
@@ -138,43 +139,54 @@ const handleConfirm = () => {
   </el-aside>
   <el-header height="80px">
     <span>链接分享(分享失败超过1年以上的链接记录将被自动清理)</span>
-    <span style="font-weight: bold;">全部文件<p>已加载：{{ data.length }}文件</p></span>
+    <span style="font-weight: bold"
+      >全部文件
+      <p>已加载：{{ data.length }}文件</p></span
+    >
   </el-header>
   <div class="file-list">
     <div class="file-list-header">
-      <el-checkbox label="分享文件" style="margin-left: 30px;margin-right: 300px;" />
+      <el-checkbox label="分享文件" style="margin-left: 30px; margin-right: 300px" />
       <span v-for="(item, index) in columns" :key="index">{{ item.title }}</span>
     </div>
-    <div style="top: 3%;width: 100%;position: relative;z-index: 1000;" v-loading="loading"
-      element-loading-text="Loading...">
-      <div class="file-list-body" v-for="(item, index) in data" :key="index" @click="Visible(item)">
-        <p><span>{{ "/s?one_id=" + item.oneId +"&"+"pwd="+item.password}}</span> <span>{{ item.createTime }} </span><span>{{ item.password
-            }}</span><span>{{ item.fileVisit
-            }}</span></p>
+    <div
+      style="top: 3%; width: 100%; position: relative; z-index: 1000"
+      v-loading="loading"
+      element-loading-text="Loading..."
+    >
+      <div
+        class="file-list-body"
+        v-for="(item, index) in data"
+        :key="index"
+        @click="Visible(item)"
+      >
+        <p>
+          <span>{{
+            "/s?one_id=" +
+            item.oneId +
+            "&" +
+            "pwd=" +
+            item.password +
+            "&" +
+            "userId=" +
+            id
+          }}</span>
+          <span>{{ item.createTime }} </span><span>{{ item.password }}</span
+          ><span>{{ item.fileVisit }}</span>
+        </p>
       </div>
     </div>
   </div>
   <div class="file-aside">
-    <img src="https://s2.loli.net/2025/03/06/QWczYdTLty7frjp.png">
+    <img src="https://s2.loli.net/2025/03/06/QWczYdTLty7frjp.png" />
   </div>
-
-
-
-
-
-
-
 
   <el-dialog v-model="dialogTableVisible" title="管理你的分享" width="800">
     <el-form :model="form" label-width="120px">
       <!-- 链接显示 -->
       <el-form-item label="分享链接：">
         <div class="link-container">
-          <el-input v-model="shareLink" readonly disabled>
-            <template #append>
-              <el-button icon="DocumentCopy" @click="copyLink" />
-            </template>
-          </el-input>
+          <el-input v-model="shareLink" readonly> </el-input>
         </div>
       </el-form-item>
 
@@ -188,10 +200,9 @@ const handleConfirm = () => {
       </el-form-item>
 
       <!-- 密码设置 -->
-       <el-form-item label="密码设置：">
-        <el-input v-model="form.password" placeholder="请输入分享密码" disabled/>
-       </el-form-item>
-
+      <el-form-item label="密码设置：">
+        <el-input v-model="form.password" placeholder="请输入分享密码" disabled />
+      </el-form-item>
 
       <!-- 统计信息 -->
       <div class="stats-container">
@@ -205,13 +216,23 @@ const handleConfirm = () => {
         </div>
         <div class="stat-item">
           <span class="label">文件：</span>
-          <span class="value" v-for="(item, index) in stats.List.slice(0,5)" :key="index">{{ item }}</span>
+          <span
+            class="value"
+            v-for="(item, index) in stats.List.slice(0, 5)"
+            :key="index"
+            >{{ item }}</span
+          >
         </div>
       </div>
 
       <!-- 启用/禁用开关 -->
-      <el-form-item label="启用分享：">
-        <el-switch v-model="form.enabled" active-text="启用" inactive-text="禁用" />
+      <el-form-item label="分享状态：">
+        <el-switch
+          v-model="form.enabled"
+          active-text="生效"
+          inactive-text="删除"
+          @change="handleSwitchChange"
+        />
       </el-form-item>
     </el-form>
 
@@ -223,10 +244,6 @@ const handleConfirm = () => {
     </template>
   </el-dialog>
 </template>
-
-
-
-
 
 <style scoped>
 .el-header {
@@ -240,21 +257,17 @@ const handleConfirm = () => {
   background-color: white;
 }
 
-
 .el-header span {
   float: left;
   color: black;
   margin: 5px 0 10px 0;
   font-size: small;
-
 }
 
 .el-header span p {
   display: inline-block;
-  margin-left: 65%
+  margin-left: 65%;
 }
-
-
 
 .el-aside {
   position: fixed;
@@ -287,8 +300,6 @@ const handleConfirm = () => {
   background-color: rgba(135, 184, 174, 0.1);
 }
 
-
-
 .item {
   display: flex;
   align-items: center;
@@ -301,15 +312,11 @@ const handleConfirm = () => {
   line-height: auto;
 }
 
-
-
 .active {
   border-radius: 20px;
   background-color: rgba(39, 186, 155, 0.1);
   color: rgba(39, 186, 155, 0.5);
 }
-
-
 
 .file-list {
   margin-top: -5px;
@@ -340,7 +347,6 @@ const handleConfirm = () => {
   margin-right: 0;
 }
 
-
 .file-list-header {
   border-bottom: 1px solid rgba(95, 95, 95, 0.1);
   position: fixed;
@@ -350,7 +356,6 @@ const handleConfirm = () => {
 }
 
 .file-list-body {
-
   color: black;
   border-bottom: 1px solid rgba(95, 95, 95, 0.1);
   padding: 20px 0 20px 0;
@@ -358,7 +363,6 @@ const handleConfirm = () => {
   top: 20%;
   width: 76%;
   border-right: 1px solid rgba(199, 199, 199, 0.5);
-
 }
 
 .file-list-body:hover {

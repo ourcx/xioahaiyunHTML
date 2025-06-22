@@ -24,6 +24,8 @@ const colorScale = d3.scaleOrdinal(d3.schemeSet2)
 // 初始化图表
 function initChart() {
   const svg = d3.select(svgElement.value)
+  console.log(dataset.links)
+  console.log(dataset.nodes)
 
   // 创建连线
   const links = svg.selectAll(".link")
@@ -126,7 +128,7 @@ function handleResize() {
 
 function updateDataset(newNodes, newLinks) {
   Object.assign(dataset, {
-    nodes: [...newNodes, { id: 0, name: MasterPinia.name, email: MasterPinia.email }],
+    nodes: [ { id: 0, name: MasterPinia.name, email: MasterPinia.email },...newNodes],
     links: [...newLinks]
   })
 }
