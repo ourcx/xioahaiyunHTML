@@ -1,10 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { checkPermission } from '@/utils/404'
 import { useManagementStore } from '@/stores/management'
-import { useRoute } from 'vue-router'
 import { watch, toRaw } from 'vue'
 import { useChatStore } from '@/stores/chat'
-import axios from 'axios'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -255,6 +253,11 @@ router.beforeEach(async (to, from, next) => {
   } else {
     return next('/login')
   }
+  const chatStore = useChatStore()
+  if (!chatStore.ws) {
+    // 初始化 WebSocket 连接
+    chatStore.initWebSocket()
+  }
 
   // 2. 404 检查（同步）
   if (!checkPermission(to.path, to.query.id)) {
@@ -266,8 +269,6 @@ router.beforeEach(async (to, from, next) => {
     // 直接放行这些路径
     return next()
   }
-
-
 
   // 3. 特定路由的业务逻辑检查
   if (to.path === '/conversation/person/group' || to.path === '/conversation/person/window') {

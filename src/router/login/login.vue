@@ -57,6 +57,10 @@ async function postData() {
 
 const reqData = () => {
   router.push({ path: '/req' })
+  //刷新页面
+  setTimeout(() => {
+    window.location.reload()
+  }, 300)
 }
 
 

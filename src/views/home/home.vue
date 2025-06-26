@@ -12,19 +12,7 @@ const route = useRoute();
 //   "password": "123456",
 //   "email": "324saas55ss0"
 // })
-import { useChatStore } from '@/stores/chat'
-  const chatStore = useChatStore()
 
-onMounted(() => {
-  // 初始化聊天数据
-  chatStore.initWebSocket()
-  // 监听路由变化
-})
-
-onBeforeUnmount(() => {
-  // 清理聊天数据
-  chatStore.closeConnection()
-});
 
 
 </script>

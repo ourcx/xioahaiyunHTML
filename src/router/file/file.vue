@@ -117,9 +117,6 @@ watch(
   { immediate: true, deep: true } // ✅ 添加深度监听
 );
 
-
-
-
 const route = useRoute();
 
 // ✅ 在组件挂载时加载数据
@@ -163,7 +160,7 @@ watch(
 watch(
   () => fileTreeStore.routeArr,
   (newValue) => {
-    check.value = {}// 清空之前的选中状态
+    check.value = {}; // 清空之前的选中状态
     shareCheck.value = {}; // 清空分享状态
   },
   { immediate: true, deep: true } // ✅ 添加深度监听
@@ -179,9 +176,9 @@ watch(
   }
 );
 
-const checked = (name,path="") => {
-  const item =  fileTreeStore.routeArr.slice(0,2).join("/")+"/"+path + name;
-  shareCheck.value= {
+const checked = (name, path = "") => {
+  const item = fileTreeStore.routeArr.slice(0, 2).join("/") + "/" + path + name;
+  shareCheck.value = {
     ...shareCheck.value,
     [item]: true, // 保留 true 值便于后续逻辑判断
   };
@@ -506,18 +503,29 @@ watch(
 );
 
 //懒加载
+let lastScrollTop = 0;
 let throttleTimer = null;
-const handleScroll = () => {
-  if (fileTreeStore.lazyPathArr.length == 0) return;
-  fileTreeStore.lazyLoad();
+const handleScroll = (e) => {
+  const target = e.target; // 事件绑定的容器
+  const currentScrollTop = target.scrollTop;
+  if (fileTreeStore.lazyPathArr.length !== 0) {
+    fileTreeStore.lazyLoad();
+  }
+  if (currentScrollTop < lastScrollTop && fileTreeStore.preLazyPathArr.length !== 0) {
+    fileTreeStore.preLazyLoad();
+  }else{
+    fileTreeStore.preOrderLazyLoad();
+  }
+  lastScrollTop = currentScrollTop;
 };
+//完成了前序更新，优化性能，不让页面有太多文件
 // 添加节流优化
-const throttledScroll = () => {
+const throttledScroll = (e) => {
   if (throttleTimer) return;
   throttleTimer = setTimeout(() => {
-    handleScroll();
+    handleScroll(e);
     throttleTimer = null;
-  }, 500);
+  }, 800);
 };
 onUnmounted(() => {
   throttleTimer = null;
@@ -542,7 +550,6 @@ watch(
 
 //分享函数
 
-
 // --- provide ---
 // 创建一个响应式对象，用于子组件注入并挂载其控制方法
 const shareControl = reactive({
@@ -550,15 +557,18 @@ const shareControl = reactive({
 });
 
 // 将 shareControl 提供给后代组件
-provide('shareControl', shareControl);
+provide("shareControl", shareControl);
 
-const shareFile = async(item) => {
+const shareFile = async (item) => {
   console.log(shareCheck.value);
-  const list = new Set()
-  const r = fileTreeStore.routeArr.slice(0,2).join("/")+"/"
+  const list = new Set();
+  const r = fileTreeStore.routeArr.slice(0, 2).join("/") + "/";
   if (route.query.type != "file") {
-    console.log("分享文件11111111111111111111111111111111111:", r + item.basePath + item.name);
-    const res = r+item.basePath + item.name
+    console.log(
+      "分享文件11111111111111111111111111111111111:",
+      r + item.basePath + item.name
+    );
+    const res = r + item.basePath + item.name;
     list.add(res);
   } else {
     const slicedPath = fileTreeStore.routeArr.join("/");
@@ -572,6 +582,15 @@ const shareFile = async(item) => {
   });
   await shareControl.open(Array.from(list));
 };
+/**
+ * 优化 file 列表展示的性能，减少卡顿
+ * 用函数式 computed 返回一个函数，接收 item 参数
+ */
+const fileListShow = (item) => {
+  return !divDomList.value[item.name] && editingFileName.value !== item.name;
+};
+//场外解决show的展示问题
+//解决了前序和后序的懒加载
 </script>
 
 <template>
@@ -629,11 +648,11 @@ const shareFile = async(item) => {
           class="file-list-body"
           v-for="(item, index) in fileTreeStore.result"
           :key="index"
-          @mouseover="getDivDom(item)"
-          @mouseout="nogetDivDom(item)"
+          @mouseenter="getDivDom(item)"
+          @mouseleave="nogetDivDom(item)"
         >
           <!-- :fit="fit" -->
-          <p v-show="!divDomList[item.name] && editingFileName !== item.name">
+          <p v-if="fileListShow(item)">
             <el-image style="width: 25px; height: 25px" :src="url(item)" /><span>{{
               item.name
             }}</span>
@@ -642,7 +661,7 @@ const shareFile = async(item) => {
 
           <Transition name="fade" tag="div">
             <!-- 编辑模式 -->
-            <div v-show="editingFileName === item.name" class="edit-mode">
+            <div v-if="editingFileName === item.name" class="edit-mode">
               <el-input
                 v-model="tempName"
                 ref="editInput"
@@ -669,7 +688,7 @@ const shareFile = async(item) => {
           </Transition>
 
           <div
-            v-show="divDomList[item.name] && editingFileName !== item.name"
+            v-if="!fileListShow(item)"
             :class="{ active: check[item.name] }"
             class="checkbox"
           >
@@ -677,7 +696,7 @@ const shareFile = async(item) => {
               :v-model="check[item.name]"
               size="small"
               label="   "
-              @click="checked(item.name,item.basePath)"
+              @click="checked(item.name, item.basePath)"
             /><span id="text" @click="enter(item)">{{ item.name }}</span>
             <el-icon>
               <Link />
@@ -711,24 +730,16 @@ const shareFile = async(item) => {
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item @click="MoveControl(item.name, 'copy')"
-                      ><el-icon>
-                        <DocumentCopy /> </el-icon
-                      >复制</el-dropdown-item
+                      ><el-icon> <DocumentCopy /> </el-icon>复制</el-dropdown-item
                     >
                     <el-dropdown-item @click="MoveControl(item.name)"
-                      ><el-icon>
-                        <Rank /> </el-icon
-                      >移动</el-dropdown-item
+                      ><el-icon> <Rank /> </el-icon>移动</el-dropdown-item
                     >
                     <el-dropdown-item
-                      ><el-icon>
-                        <FolderAdd /> </el-icon
-                      >导出项目目录</el-dropdown-item
+                      ><el-icon> <FolderAdd /> </el-icon>导出项目目录</el-dropdown-item
                     >
                     <el-dropdown-item @click="shareFile(item)"
-                      ><el-icon>
-                        <Place /> </el-icon
-                      >共享</el-dropdown-item
+                      ><el-icon> <Place /> </el-icon>共享</el-dropdown-item
                     >
                   </el-dropdown-menu>
                 </template>
