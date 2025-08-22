@@ -14,7 +14,7 @@ const props = defineProps({
 
 <template>
 <div class="main" >
-  <p class="body"><p>></p><P class="msg" @click="fileTreeStore.selectRouteArr(msg)" >{{ msg }}</P></p>
+  <p class="body"><p>></p><p class="msg" @click="fileTreeStore.selectRouteArr(msg)" >{{ msg }}</p></p>
 </div>
 </template>
 

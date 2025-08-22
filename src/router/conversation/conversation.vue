@@ -1,5 +1,6 @@
 <script setup>
 import 'animate.css';
+import { useTimeDiff } from '@/hook/useTimeDiff';
 import { toRaw } from 'vue'
 //这个东西是那里对面的，还要生成一个自己的，再写一个或者在这里做修改
 const props = defineProps({
@@ -14,7 +15,7 @@ const props = defineProps({
 const data=toRaw(props.data)
 
 const {name,message,time,id,avatar}={...data}
-
+const timeDiff = useTimeDiff(time)
 </script>
 
 
@@ -22,7 +23,7 @@ const {name,message,time,id,avatar}={...data}
 <template>
 <div class="conversation-main">
   <div class="conversation-time">
-    <div class="time-system">{{ time }}</div>
+    <div class="time-system">{{ timeDiff }}</div>
   </div>
   <div class="conversation">
     <div class="conversation-avatar">

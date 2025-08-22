@@ -2,7 +2,7 @@
 import { ref, toRaw } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-
+import Point from '@/utils/point/point.vue'
 const router = useRouter()
 
 const activeIndex = ref('1')
@@ -70,10 +70,13 @@ const reqData = () => {
 <template>
   <el-alert title="账号密码不能为空" type="error" v-if="alert" />
   <div class="container">
-    <img src="../../assets/login.png" alt="">
-    <div
+  <div class="side">
+      <img src="../../assets/login.png" alt="">
+    <!-- <div
       style="position: absolute;top: 270px;left: 70px;font-size: 40px;color: black; font-family: 隶书;user-select: none;">
-      小海网盘</div>
+      小海网盘</div> -->
+      <Point scale-val="0.6" height="100" text="小海网盘" color="#23ba9b"/>
+  </div>
     <div class="main">
       <el-menu>
         <el-menu-item>账号登录</el-menu-item>
@@ -151,6 +154,8 @@ html {
 }
 .container {
   position: absolute;
+  display: flex;
+  flex-direction: row;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -161,10 +166,16 @@ html {
   z-index: 1002;
   box-shadow: 6px 6px 15px rgba(101, 213, 189, 0.14);
 }
-
-.container img {
-  float: left;
+.side{
   width: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.side img {
   user-select: none;
 }
 

@@ -15,6 +15,7 @@ coverage
 *.local
 .vscode
 .env
+upload.js
 
 /cypress/videos/
 /cypress/screenshots/

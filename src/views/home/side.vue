@@ -66,7 +66,6 @@ const pumging = (e) => {
 };
 
 watch(
-  // 修正监听对象（原代码重复监听了 dataMy）
   () => [ChatStore.privateCon, ChatStore.dataCon],
   () => {
     dot.value = true

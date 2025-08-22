@@ -1,7 +1,7 @@
 <template>
   <div class="share-container">
     <!-- 头部导航 -->
-    <el-menu class="header" mode="horizontal" >
+    <el-menu class="header" mode="horizontal">
       <el-menu-item index="0" style="cursor: default" @click="ToHome()">
         <img
           src="https://s2.loli.net/2025/03/24/nDA7s16FJ4Rytmf.png"
@@ -245,7 +245,8 @@ onMounted(async () => {
   const item = localStorage.getItem("verifiedShares");
   const one_id = route.query.one_id;
   const stored = item ? JSON.parse(item) : {};
-  if ((stored[one_id]?.verified && Date.now() < stored[one_id]?.expires)) {
+  visitUser();
+  if (stored[one_id]?.verified && Date.now() < stored[one_id]?.expires) {
     return;
   }
   if (route.query.one_id) {
@@ -254,7 +255,20 @@ onMounted(async () => {
     return;
   }
 });
-
+const visitUser = async () => {
+  try {
+    const res = await apiClient.put("/outShare/access",{
+      one_id: route.query.one_id,
+      userId: route.query.userId,
+    });
+    console.log(res);
+    if (res.status !== 200) {
+      ToHome();
+    }
+  } catch (error) {
+    console.error("访问用户失败:", error);
+  }
+};
 
 const ToHome = () => {
   router.push("/FirstFile");

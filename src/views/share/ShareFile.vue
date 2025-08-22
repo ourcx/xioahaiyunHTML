@@ -281,7 +281,7 @@ onMounted(() => {
 
   100% {
     transform: translateY(-2000px) rotate(720deg);
-    opacity: 0.1;
+    opacity: 0.5;
     border-radius: 50%;
   }
 }

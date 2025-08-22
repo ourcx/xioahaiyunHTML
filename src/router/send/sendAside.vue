@@ -67,7 +67,7 @@ const getData = async () => {
   try {
     const response = await apiClient.get("/data/shareData");
     data.value = response.data.data;
-    // console.log('获取数据成功:', response.data.data);
+    console.log('获取数据成功:', response.data.data);
   } catch (error) {
     console.error("获取数据失败:", error);
   }
@@ -79,7 +79,7 @@ onMounted(() => {
 
 const Visible = (item) => {
   visible.value = true;
-  shareLink.value = `http://localhost:5173/s?one_id=${item.oneId}&pwd=${item.password}&userId=${id}`;
+  shareLink.value = `${window.location.origin}/s?one_id=${item.oneId}&pwd=${item.password}&userId=${id}`;
   stats.createTime = item.createTime;
   stats.visitCount = item.fileVisit;
   form.oneId = item.oneId;

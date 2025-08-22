@@ -1,12 +1,88 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
-// vite.config.js
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+
+// 后端API基础地址
+const API_BASE_URL = 'http://localhost:8085'
+
+// 通用代理配置
+const createProxy = (path) => ({
+  target: API_BASE_URL,
+  changeOrigin: true,
+})
+
+// WebSocket代理特殊配置
+const createWebSocketProxy = (path) => ({
+  ...createProxy(path),
+  ws: true,
+})
+
+// API路径列表
+const API_PATHS = [
+  '/user/userLongin',
+  '/user/userReq',
+  '/user/parseJwt',
+  '/user/sendEmail',
+  '/user/checked',
+  '/chat/getGroupHistory',
+  '/profiles/GetProfile',
+  '/profiles/getRBook',
+  '/profiles/PostProfile',
+  '/profiles/upUserName',
+  '/profiles/search',
+  '/profiles/relationApply',
+  '/profiles/forgetPwd',
+  '/files/ReplayFile',
+  '/files/baseData',
+  '/files/RenameFile',
+  '/files/treeFIle',
+  '/files/special',
+  '/files/Dscribe',
+  '/files/imgDate',
+  '/files/imgData',
+  '/files/AddFolder',
+  '/files/removeFIleName',
+  '/files/move',
+  '/files/copy',
+  '/files/ForDescribe',
+  '/files/init',
+  '/files/Url',
+  '/share/getUrl',
+  '/share/download',
+  '/share/create',
+  '/share/deleteShare',
+  '/outShare/access',
+  '/data/total',
+  '/data/shareData',
+  '/data/proportion',
+  '/data/logins',
+  '/data/relationD3',
+  '/AI/chat',
+  '/pwd/passwordChange',
+  '/trash/TrashList',
+  '/trash/RecoverFile',
+  '/trash/deleteTrash',
+  '/email/sendEmail'
+]
+
+// 生成代理配置
+const generateProxies = () => {
+  const proxies = {}
+
+  // 普通API代理
+  API_PATHS.forEach(path => {
+    proxies[path] = createProxy(path)
+  })
+
+  // WebSocket特殊处理
+  proxies['/chat'] = createWebSocketProxy('/chat')
+
+  return proxies
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -36,189 +112,6 @@ export default defineConfig({
     }
   },
   server: {
-    proxy: {
-      '/user/userLongin': {
-        target: 'http://127.0.0.1:8085',
-        changeOrigin: true,
-      },
-      '/user/userReq': {
-        target: 'http://127.0.0.1:8085',
-        changeOrigin: true,
-      },
-      '/chat': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-        ws: true, // 关键配置：代理 WebSocket
-        pathRewrite: {
-          '^/chat': '/chat'
-        }
-      },
-      '/user/parseJwt': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/chat/getGroupHistory': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/profiles/GetProfile': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/profiles/getRBook': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/user/sendEmail': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/profiles/PostProfile': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/profiles/upUserName': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/ReplayFile': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/baseData': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/RenameFile': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/treeFIle': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/share/getUrl': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/user/checked': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/special': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/Dscribe': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/imgDate': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/imgData': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/data/total': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/AI/chat': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/AddFolder': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/data/shareData': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/profiles/search': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/profiles/relationApply': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/removeFIleName': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/data/proportion': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/move': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/pwd/passwordChange': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/copy': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/ForDescribe': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/init': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/trash/TrashList': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/trash/RecoverFile': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/trash/deleteTrash': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      "/email/sendEmail": {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/profiles/forgetPwd': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/data/logins': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/data/relationD3': {
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/files/Url':{
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/share/download':{
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/share/create':{
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      },
-      '/share/deleteShare':{
-        target: 'http://localhost:8085',
-        changeOrigin: true,
-      }
-    }
-  },
-
-
+    proxy: generateProxies()
+  }
 })

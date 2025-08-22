@@ -3,7 +3,7 @@ import Move from '@/components/FIleMove/Move.vue';
 import { ref } from 'vue';
 import { useFileTreeStore } from '@/stores/tree/fileTree';
 import { useRoute } from 'vue-router';
-import Dialog from '@/components/upload/dialog.vue';
+import Dialog from '@/components/upload/Dialog.vue';
 import { useUpLoadStore } from "@/stores/upload";
 
 const upLoadStore = useUpLoadStore();
@@ -12,7 +12,10 @@ const route = useRoute()
 const input = ref('');
 
 
-
+const toMD = () => {
+  //跳转外部链接
+  window.open('https://ourcx.github.io/MiniMarkdown/');
+}
 
 
 
@@ -28,7 +31,7 @@ const input = ref('');
       <el-button type="info" v-if="route.query.type == 'file'" @click="fileTreeStore.addFolder()"><el-icon>
           <FolderAdd />
         </el-icon>新建文件夹</el-button>
-      <el-button type="info" ><el-icon>
+      <el-button type="info" @click="toMD"><el-icon>
           <DocumentAdd />
         </el-icon>新建在线文档</el-button>
     </el-button-group>

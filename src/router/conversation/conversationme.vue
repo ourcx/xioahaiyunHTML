@@ -1,52 +1,51 @@
 <script setup>
-import { toRaw } from 'vue'
-import 'animate.css';
+import { computed, toRaw } from "vue";
+import { useTimeDiff } from "@/hook/useTimeDiff";
+import "animate.css";
 //这个东西是那里对面的，还要生成一个自己的，再写一个或者在这里做修改
 const props = defineProps({
   data: {
     type: Object,
     default: () => {
-      return {}
-    }
-  }
-})
+      return {};
+    },
+  },
+});
 
-const data = toRaw(props.data)
+const data = toRaw(props.data);
 
-const { name, message, time, id, avatar } = { ...data }
+const { name, message, time, id, avatar } = { ...data };
+
+const timeDiff = useTimeDiff(time);
 
 </script>
-
-
 
 <template>
   <div class="conversation-main">
     <div class="conversation-time">
-      <div class="time-system">{{ time }}</div>
+      <div class="time-system">{{ timeDiff }}</div>
     </div>
-      <div class="conversation">
-        <div class="conversation-avatar">
-          <div class="person">
-            <span>
-              <img :src="avatar" style="width: 35px;height: 35px;"/>
-            </span>
-          </div>
+    <div class="conversation">
+      <div class="conversation-avatar">
+        <div class="person">
+          <span>
+            <img :src="avatar" style="width: 35px; height: 35px" />
+          </span>
         </div>
-        <div class="conversation-body">
-          <div class="name">{{ name }}</div>
-          <div class="location">
-            <div class="location-body animate__bounceIn">
-              <div class="connet">
-                {{ message }}
-              </div>
+      </div>
+      <div class="conversation-body">
+        <div class="name">{{ name }}</div>
+        <div class="location">
+          <div class="location-body animate__bounceIn">
+            <div class="connet">
+              {{ message }}
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
-
-
 
 <style scoped>
 .conversation-main {
@@ -57,11 +56,7 @@ const { name, message, time, id, avatar } = { ...data }
   margin-top: 18px;
   position: relative;
   z-index: 1005;
-
 }
-
-
-
 
 .conversation {
   margin-top: 20px;
@@ -72,7 +67,6 @@ const { name, message, time, id, avatar } = { ...data }
   margin: 8px 0;
   overflow: hidden;
   flex-direction: row-reverse;
-
 }
 
 .conversation-avatar {
@@ -106,10 +100,10 @@ const { name, message, time, id, avatar } = { ...data }
 .location-body {
   width: 100%;
   height: 100%;
-  background-color:#e9f8f5;
-  border-top-left-radius:30px;
+  background-color: #e9f8f5;
+  border-top-left-radius: 30px;
   /* 左上角 */
-  border-top-right-radius:5px;
+  border-top-right-radius: 5px;
   /* 右上角 */
   border-bottom-left-radius: 25px;
   /* 左下角 */
@@ -120,12 +114,9 @@ const { name, message, time, id, avatar } = { ...data }
   color: black;
 }
 
-
-
 .connet {
   width: 100%;
   word-break: break-word;
-
 }
 
 img {
