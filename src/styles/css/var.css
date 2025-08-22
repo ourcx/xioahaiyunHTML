@@ -1,0 +1,8 @@
+:root {
+  --primary-color: #27ba9b;
+  --gold-gradient: linear-gradient(45deg, #f0c78a, #d8a050);
+  --card-bg: #ffffff;
+  --text-primary: #303133;
+  --text-secondary: #909399;
+  --border-color: #e4e7ed;
+}

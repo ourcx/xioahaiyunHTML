@@ -3,7 +3,7 @@ import Hearder from '@/views/home/hearder.vue'
 import Side from '@/views/home/side.vue';
 import { RouterView } from 'vue-router';
 import { useRoute } from 'vue-router';
-import { onMounted,onBeforeUnmount } from 'vue';
+import Member from '../member/index.vue';
 
 const route = useRoute();
 // import {axiosXH} from '@/utils/axiosXH.js'
@@ -24,6 +24,7 @@ const route = useRoute();
 
 <template>
   <el-container id="container">
+  <Member />
     <Hearder />
     <Side />
     <router-view :key="$route.fullPath">
